@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TypeResponse {
     private Integer id;
-    private Integer name;
+    private String name;
 }
