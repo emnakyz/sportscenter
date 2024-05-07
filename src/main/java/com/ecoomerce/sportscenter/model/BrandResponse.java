@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BrandResponse {
     private Integer id;
-    private Integer name;
+    private String name;
 }
