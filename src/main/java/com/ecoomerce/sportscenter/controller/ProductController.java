@@ -7,9 +7,7 @@ import com.ecoomerce.sportscenter.model.TypeResponse;
 import com.ecoomerce.sportscenter.service.BrandService;
 import com.ecoomerce.sportscenter.service.ProductService;
 import com.ecoomerce.sportscenter.service.TypeService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,20 +37,26 @@ public class ProductController {
     @GetMapping()
     public ResponseEntity<Page<ProductResponse>> getProducts(
             @PageableDefault(size = 10)Pageable pageable,
-            @RequestParam(name="keyword",required = false) String keyword
+            @RequestParam(name="keyword", required = false) String keyword,
+            @RequestParam(name="sort", defaultValue = "name") String sort,
+            @RequestParam(name="order", defaultValue = "asc") String order
             )
     {
         Page<ProductResponse> productResponsePage;
-        if (keyword != null && !keyword.isEmpty()){
+        if (keyword != null && !keyword.isEmpty())
+        {
             List<ProductResponse> productResponses = productService.searchProductsByName(keyword);
             productResponsePage = new PageImpl<>(productResponses,pageable,productResponses.size());
         }
-        else {
-            productResponsePage = productService.getProducts(pageable);
+        else
+        {
+            //If no search criteria, then retrieve based on sorting options
+            Sort.Direction direction = "asc".equalsIgnoreCase(order)?Sort.Direction.ASC : Sort.Direction.DESC;
+            Sort sorting = Sort.by(direction,sort);
+
+            productResponsePage = productService.getProducts(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),sorting));
         }
         return new ResponseEntity<>(productResponsePage,HttpStatus.OK);
-        //Page<ProductResponse> productResponsePage = productService.getProducts(pageable);
-        //return new ResponseEntity<>(productResponsePage,HttpStatus.OK);
     }
 
     @GetMapping("/brands")
